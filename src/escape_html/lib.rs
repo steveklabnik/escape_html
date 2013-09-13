@@ -7,8 +7,4 @@
 #[license = "APGLv3"];
 #[crate_type = "lib"];
 
-#[test]
-fn this_tests_code() {
-  fail!("Yup.");
-}
-
+pub mod escape_html;
