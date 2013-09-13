@@ -1,0 +1,3 @@
+fn hello() -> ~str {
+   ~"hello" 
+}
