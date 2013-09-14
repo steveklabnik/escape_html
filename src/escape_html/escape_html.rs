@@ -9,6 +9,26 @@ fn mark_unsafe(s: ~str) -> QuestionableString<UnsafeString> {
   Str(s)
 }
 
+fn mark_safe(s: QuestionableString<UnsafeString>) -> QuestionableString<SafeString> {
+  unsafe { transmute(s) }
+}
+
+impl Eq for QuestionableString<UnsafeString> {
+    fn eq(&self, other: &QuestionableString<UnsafeString>) -> bool { 
+        match (self, other) {
+            (&Str(ref s), &Str(ref o)) => o == s
+        }
+    }
+}
+
+impl Eq for QuestionableString<SafeString> {
+    fn eq(&self, other: &QuestionableString<SafeString>) -> bool { 
+        match (self, other) {
+            (&Str(ref s), &Str(ref o)) => o == s
+        }
+    }
+}
+
 fn escape_html<T>(s: QuestionableString<T>) -> ~str {
     match s {
         Str(s) => { 
@@ -28,12 +48,6 @@ fn escape_html<T>(s: QuestionableString<T>) -> ~str {
         }
     }
 }
-
-/* For the future
-fn mark_safe(s: QuestionableString<UnsafeString>) -> QuestionableString<SafeString> {
-  unsafe { transmute(s) }
-}
-*/
 
 #[test]
 fn test_escaping() {
@@ -70,5 +84,12 @@ fn test_escaping_quote() {
 fn test_escaping_double_quote() {
     let input = mark_unsafe(~"\"");
     assert_eq!(escape_html(input), ~"&#34;");
+}
+
+#[test]
+fn test_mark_safe() {
+    let input = mark_unsafe(~"&");
+    let sketchy_str : QuestionableString<SafeString> = Str(~"&");
+    assert_eq!(mark_safe(input), sketchy_str);
 }
 
